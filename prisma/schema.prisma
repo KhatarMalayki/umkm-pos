@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+}
+
+model StoreSetting {
+  id                String   @id @default("main")
+  storeName         String   @default("Toko UMKM")
+  bankName          String?
+  bankAccountNumber String?
+  bankAccountHolder String?
+  qrisImageUrl      String?
+  whatsappNumber    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  products Product[]
+}
+
+model Unit {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  abbreviation    String
+  orderItems      OrderItem[]
+  productUnits    ProductUnit[]
+  poItems         PurchaseOrderItem[]
+}
+
+model Department {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  color          String          @default("#10b981")
+  purchaseOrders PurchaseOrder[]
+}
+
+model PurchaseOrder {
+  id           String              @id @default(cuid())
+  poNumber     String              @unique
+  orderDate    DateTime            @default(now())
+  departmentId String
+  status       String              @default("draft") // draft | submitted | approved | cancelled
+  note         String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  department   Department          @relation(fields: [departmentId], references: [id])
+  items        PurchaseOrderItem[]
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  itemName        String
+  quantity        Float
+  unitId          String?
+  customUnit      String?
+  note            String?
+  sortOrder       Int           @default(0)
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  unit            Unit?         @relation(fields: [unitId], references: [id])
+}
+
+model Product {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  imageUrl     String?
+  categoryId   String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  category     Category?     @relation(fields: [categoryId], references: [id])
+  productUnits ProductUnit[]
+  orderItems   OrderItem[]
+}
+
+model ProductUnit {
+  id        String  @id @default(cuid())
+  productId String
+  unitId    String
+  price     Float
+  stock     Int     @default(0)
+  isDefault Boolean @default(false)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unit      Unit    @relation(fields: [unitId], references: [id])
+
+  @@unique([productId, unitId])
+}
+
+model Discount {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  type       String   // "percent" | "nominal"
+  value      Float
+  minOrder   Float    @default(0)
+  isActive   Boolean  @default(true)
+  expiredAt  DateTime?
+  createdAt  DateTime @default(now())
+  orders     Order[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  customerName  String
+  customerPhone String?
+  customerNote  String?
+  paymentMethod String      // "cod" | "transfer"
+  status        String      @default("pending") // pending | confirmed | processing | done | cancelled
+  discountId    String?
+  discountValue Float       @default(0)
+  subtotal      Float
+  total         Float
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  discount      Discount?   @relation(fields: [discountId], references: [id])
+  items         OrderItem[]
+  invoice       Invoice?
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  unitId    String
+  quantity  Float
+  price     Float
+  subtotal  Float
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+  unit      Unit    @relation(fields: [unitId], references: [id])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  invoiceNumber String @unique
+  issuedAt    DateTime @default(now())
+  dueDate     DateTime?
+  note        String?
+  order       Order    @relation(fields: [orderId], references: [id])
+}
