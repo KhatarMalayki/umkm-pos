@@ -14,8 +14,8 @@ const statusCfg: Record<string, { label: string; bg: string; text: string }> = {
   cancelled: { label: "Dibatalkan", bg: "bg-red-100",    text: "text-red-700"    },
 };
 
-export default async function PODetailPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function PODetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
 
   const po = await prisma.purchaseOrder.findUnique({
     where: { id },
