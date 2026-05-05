@@ -12,49 +12,88 @@ export default async function InvoiceListPage() {
   });
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Invoice</h1>
         <p className="text-sm text-gray-500">{invoices.length} invoice</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-            <tr>
-              <th className="px-4 py-3 text-left">No. Invoice</th>
-              <th className="px-4 py-3 text-left">No. Pesanan</th>
-              <th className="px-4 py-3 text-left">Customer</th>
-              <th className="px-4 py-3 text-left">Tanggal</th>
-              <th className="px-4 py-3 text-left">Total</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {invoices.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">
-                <FileText className="mx-auto mb-2" size={28} /> Belum ada invoice
-              </td></tr>
-            ) : invoices.map((inv) => (
-              <tr key={inv.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{inv.invoiceNumber}</td>
-                <td className="px-4 py-3 font-mono text-gray-600">{inv.order.orderNumber}</td>
-                <td className="px-4 py-3 text-gray-700">{inv.order.customerName}</td>
-                <td className="px-4 py-3 text-gray-500">
-                  {new Date(inv.issuedAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
-                </td>
-                <td className="px-4 py-3 font-semibold text-emerald-700">{formatRupiah(inv.order.total)}</td>
-                <td className="px-4 py-3 text-right">
-                  <Link href={`/admin/invoice/${inv.order.id}`}
-                    className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline">
+      {invoices.length === 0 ? (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400">
+          <FileText className="mx-auto mb-2" size={28} /> Belum ada invoice
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3 md:hidden">
+            {invoices.map((inv) => (
+              <div key={inv.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-2.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[11px] uppercase tracking-wide text-gray-400">No. Invoice</p>
+                    <p className="font-mono font-semibold text-sm text-emerald-700 break-all">{inv.invoiceNumber}</p>
+                  </div>
+                  <Link
+                    href={`/admin/invoice/${inv.order.id}`}
+                    className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium whitespace-nowrap"
+                  >
                     <Eye size={13} /> Lihat
                   </Link>
-                </td>
-              </tr>
+                </div>
+                <div className="text-xs text-gray-600 space-y-1.5">
+                  <p>
+                    <span className="text-gray-400">Pesanan:</span>{" "}
+                    <span className="font-mono">{inv.order.orderNumber}</span>
+                  </p>
+                  <p className="truncate"><span className="text-gray-400">Customer:</span> {inv.order.customerName}</p>
+                  <p>
+                    <span className="text-gray-400">Tanggal:</span>{" "}
+                    {new Date(inv.issuedAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+                <p className="font-semibold text-emerald-700">{formatRupiah(inv.order.total)}</p>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          <div className="hidden md:block bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[760px]">
+                <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
+                  <tr>
+                    <th className="px-4 py-3 text-left">No. Invoice</th>
+                    <th className="px-4 py-3 text-left">No. Pesanan</th>
+                    <th className="px-4 py-3 text-left">Customer</th>
+                    <th className="px-4 py-3 text-left">Tanggal</th>
+                    <th className="px-4 py-3 text-left">Total</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {invoices.map((inv) => (
+                    <tr key={inv.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{inv.invoiceNumber}</td>
+                      <td className="px-4 py-3 font-mono text-gray-600">{inv.order.orderNumber}</td>
+                      <td className="px-4 py-3 text-gray-700">{inv.order.customerName}</td>
+                      <td className="px-4 py-3 text-gray-500">
+                        {new Date(inv.issuedAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
+                      </td>
+                      <td className="px-4 py-3 font-semibold text-emerald-700">{formatRupiah(inv.order.total)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <Link
+                          href={`/admin/invoice/${inv.order.id}`}
+                          className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:underline"
+                        >
+                          <Eye size={13} /> Lihat
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

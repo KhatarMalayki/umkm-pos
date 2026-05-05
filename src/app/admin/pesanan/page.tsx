@@ -141,19 +141,19 @@ export default function PesananPage() {
   };
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Pesanan</h1>
         <p className="text-sm text-gray-500">{orders.length} pesanan ditemukan</p>
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input className="pl-9" placeholder="Cari no. pesanan / nama..." value={search}
             onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <Select className="w-40" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+        <Select className="w-full sm:w-40" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="">Semua Status</option>
           {Object.entries(statusConfig).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </Select>
@@ -171,88 +171,91 @@ export default function PesananPage() {
 
           return (
             <div key={o.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between p-4">
-                <div className="flex items-center gap-4">
-                  <button onClick={() => setExpanded(isExpanded ? null : o.id)} className="text-gray-400 hover:text-gray-700">
-                    <ChevronDown size={18} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
-                  </button>
-                  <div>
-                    <p className="font-mono font-semibold text-sm text-gray-800">{o.orderNumber}</p>
-                    <p className="text-xs text-gray-500">
-                      {o.customerName} · {o.paymentMethod === "cod" ? "COD" : "Transfer"} ·{" "}
-                      {new Date(o.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </p>
+              <div className="p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3 min-w-0">
+                    <button onClick={() => setExpanded(isExpanded ? null : o.id)} className="text-gray-400 hover:text-gray-700 pt-0.5">
+                      <ChevronDown size={18} className={`transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+                    </button>
+                    <div className="min-w-0">
+                      <p className="font-mono font-semibold text-sm text-gray-800 break-all">{o.orderNumber}</p>
+                      <p className="text-xs text-gray-500 leading-relaxed break-words">
+                        {o.customerName} · {o.paymentMethod === "cod" ? "COD" : "Transfer"} ·{" "}
+                        {new Date(o.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <p className="font-bold text-emerald-700">{formatRupiah(o.total)}</p>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold text-emerald-700 text-sm md:text-base">{formatRupiah(o.total)}</p>
                     <Badge variant={st.variant}>{st.label}</Badge>
                   </div>
-                  <div className="flex gap-1">
-                    {next && (
-                      <Button size="sm" onClick={() => updateStatus(o.id, next)}>
-                        {statusConfig[next].label} →
-                      </Button>
-                    )}
-                    {next && (
-                      <Button size="sm" variant="outline" onClick={() => updateStatus(o.id, next, true)}>
-                        <MessageCircle size={14} /> Update + WA
-                      </Button>
-                    )}
-                    {o.status === "pending" && (
-                      <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, "cancelled")}>Batalkan</Button>
-                    )}
-                    <Button size="sm" variant="outline" onClick={() => openWhatsAppByStatus(o)}>
-                      <MessageCircle size={14} /> WA
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {next && (
+                    <Button size="sm" onClick={() => updateStatus(o.id, next)}>
+                      {statusConfig[next].label} →
                     </Button>
-                    {o.invoice && (
-                      <Link href={`/admin/invoice/${o.id}`}>
-                        <Button size="sm" variant="outline"><Eye size={14} /> Invoice</Button>
-                      </Link>
-                    )}
-                  </div>
+                  )}
+                  {next && (
+                    <Button size="sm" variant="outline" onClick={() => updateStatus(o.id, next, true)}>
+                      <MessageCircle size={14} /> Update + WA
+                    </Button>
+                  )}
+                  {o.status === "pending" && (
+                    <Button size="sm" variant="destructive" onClick={() => updateStatus(o.id, "cancelled")}>Batalkan</Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => openWhatsAppByStatus(o)}>
+                    <MessageCircle size={14} /> WA
+                  </Button>
+                  {o.invoice && (
+                    <Link href={`/admin/invoice/${o.id}`}>
+                      <Button size="sm" variant="outline"><Eye size={14} /> Invoice</Button>
+                    </Link>
+                  )}
                 </div>
               </div>
 
               {isExpanded && (
                 <div className="border-t border-gray-100 p-4">
-                  <table className="w-full text-sm">
-                    <thead className="text-xs text-gray-500">
-                      <tr>
-                        <th className="text-left pb-2">Produk</th>
-                        <th className="text-right pb-2">Qty</th>
-                        <th className="text-right pb-2">Harga</th>
-                        <th className="text-right pb-2">Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50">
-                      {o.items.map((item) => (
-                        <tr key={item.id}>
-                          <td className="py-1.5 text-gray-700">{item.product.name}</td>
-                          <td className="py-1.5 text-right text-gray-600">{item.quantity} {item.unit.abbreviation}</td>
-                          <td className="py-1.5 text-right text-gray-600">{formatRupiah(item.price)}</td>
-                          <td className="py-1.5 text-right font-medium">{formatRupiah(item.subtotal)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot className="border-t border-gray-200 text-sm">
-                      <tr>
-                        <td colSpan={3} className="pt-2 text-gray-500">Subtotal</td>
-                        <td className="pt-2 text-right">{formatRupiah(o.subtotal)}</td>
-                      </tr>
-                      {o.discountValue > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-sm">
+                      <thead className="text-xs text-gray-500">
                         <tr>
-                          <td colSpan={3} className="text-red-500">Diskon</td>
-                          <td className="text-right text-red-500">- {formatRupiah(o.discountValue)}</td>
+                          <th className="text-left pb-2">Produk</th>
+                          <th className="text-right pb-2">Qty</th>
+                          <th className="text-right pb-2">Harga</th>
+                          <th className="text-right pb-2">Subtotal</th>
                         </tr>
-                      )}
-                      <tr className="font-bold text-emerald-700">
-                        <td colSpan={3} className="pt-1">Total</td>
-                        <td className="pt-1 text-right">{formatRupiah(o.total)}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-50">
+                        {o.items.map((item) => (
+                          <tr key={item.id}>
+                            <td className="py-1.5 text-gray-700">{item.product.name}</td>
+                            <td className="py-1.5 text-right text-gray-600">{item.quantity} {item.unit.abbreviation}</td>
+                            <td className="py-1.5 text-right text-gray-600">{formatRupiah(item.price)}</td>
+                            <td className="py-1.5 text-right font-medium">{formatRupiah(item.subtotal)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot className="border-t border-gray-200 text-sm">
+                        <tr>
+                          <td colSpan={3} className="pt-2 text-gray-500">Subtotal</td>
+                          <td className="pt-2 text-right">{formatRupiah(o.subtotal)}</td>
+                        </tr>
+                        {o.discountValue > 0 && (
+                          <tr>
+                            <td colSpan={3} className="text-red-500">Diskon</td>
+                            <td className="text-right text-red-500">- {formatRupiah(o.discountValue)}</td>
+                          </tr>
+                        )}
+                        <tr className="font-bold text-emerald-700">
+                          <td colSpan={3} className="pt-1">Total</td>
+                          <td className="pt-1 text-right">{formatRupiah(o.total)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>

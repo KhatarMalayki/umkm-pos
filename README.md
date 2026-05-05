@@ -1,3 +1,5 @@
+# UMKM POS
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
@@ -47,6 +49,22 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Auto-close drawer on route change
 - Updated main content container to avoid clipping (`min-w-0`, `h-dvh`, mobile-first layout).
 
+### Invoice & Pesanan Mobile Fix (2026-05-05)
+
+- Improved responsiveness for admin `Invoice` and `Pesanan` pages on phone screens.
+- `src/app/admin/invoice/page.tsx`:
+  - Added mobile card list for invoice items.
+  - Kept desktop table on `md+` with safe horizontal scroll.
+- `src/app/admin/pesanan/page.tsx`:
+  - Search/filter bar now stacks on mobile.
+  - Order header and action buttons now wrap safely.
+  - Expanded item table now uses horizontal scroll container.
+- `src/app/admin/invoice/[id]/page.tsx`:
+  - Header/info sections made mobile-first.
+  - Items table wrapped with horizontal scroll.
+  - Totals/footer spacing adjusted for small screens.
+
 ### Change Log
 
 - 2026-05-05: Improve admin mobile responsiveness and navigation behavior in admin layout.
+- 2026-05-05: Improve invoice and pesanan responsiveness on mobile screens.
