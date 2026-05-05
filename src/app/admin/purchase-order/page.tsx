@@ -70,29 +70,29 @@ export default function PurchaseOrderPage() {
   };
 
   return (
-    <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Purchase Order</h1>
           <p className="text-sm text-gray-500">Orderan belanja harian per departemen</p>
         </div>
         <Link href="/admin/purchase-order/buat">
-          <Button><Plus size={16} /> Buat Orderan</Button>
+          <Button className="w-full sm:w-auto"><Plus size={16} /> Buat Orderan</Button>
         </Link>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <Input className="pl-9" placeholder="Cari no. PO..." value={search}
             onChange={(e) => setSearch(e.target.value)} />
         </div>
-        <Select className="w-40" value={filterDept} onChange={(e) => setFilterDept(e.target.value)}>
+        <Select className="w-full sm:w-40" value={filterDept} onChange={(e) => setFilterDept(e.target.value)}>
           <option value="">Semua Dept.</option>
           {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
         </Select>
-        <Select className="w-40" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+        <Select className="w-full sm:w-40" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
           <option value="">Semua Status</option>
           {Object.entries(statusCfg).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </Select>
@@ -111,7 +111,7 @@ export default function PurchaseOrderPage() {
           const action = nextAction[po.status];
           return (
             <div key={po.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-              <div className="p-4 flex items-center gap-4">
+              <div className="p-4 flex items-start gap-3 md:gap-4">
                 {/* Dept color bar */}
                 <div className="w-1 self-stretch rounded-full shrink-0" style={{ backgroundColor: po.department.color }} />
 
@@ -128,10 +128,37 @@ export default function PurchaseOrderPage() {
                     {new Date(po.orderDate).toLocaleDateString("id-ID", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
                     {" · "}{po.items.length} item
                   </p>
-                  {po.note && <p className="text-xs text-gray-400 italic mt-0.5 truncate max-w-sm">{po.note}</p>}
+                  {po.note && <p className="text-xs text-gray-400 italic mt-0.5 break-words">{po.note}</p>}
+
+                  <div className="flex flex-wrap items-center gap-2 mt-3 md:hidden">
+                    {action && (
+                      <Button size="sm" onClick={() => updateStatus(po.id, action.next)}>
+                        {action.icon} {action.label}
+                      </Button>
+                    )}
+                    {po.status === "draft" && (
+                      <Button size="sm" variant="destructive" onClick={() => updateStatus(po.id, "cancelled")}>
+                        Batalkan
+                      </Button>
+                    )}
+                    <Link href={`/admin/purchase-order/${po.id}`}>
+                      <Button size="sm" variant="outline"><Eye size={14} /> Lihat</Button>
+                    </Link>
+                    {(po.status === "approved" || po.status === "cancelled") && (
+                      <Link href={`/admin/purchase-order/buat?reorder=${po.id}`}>
+                        <Button size="sm" variant="ghost" title="Reorder"><RotateCcw size={14} /></Button>
+                      </Link>
+                    )}
+                    {po.status === "draft" && (
+                      <Button size="icon" variant="ghost" className="text-red-500"
+                        onClick={() => handleDelete(po.id, po.poNumber)}>
+                        <Trash2 size={15} />
+                      </Button>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="hidden md:flex items-center gap-2 shrink-0">
                   {action && (
                     <Button size="sm" onClick={() => updateStatus(po.id, action.next)}>
                       {action.icon} {action.label}

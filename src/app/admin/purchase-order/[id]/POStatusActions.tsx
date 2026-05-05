@@ -27,7 +27,7 @@ export default function POStatusActions({ id, status }: { id: string; status: st
   const action = nextAction[status];
 
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       {action && (
         <Button size="sm" variant={action.variant} onClick={() => updateStatus(action.next)}>
           {action.icon} {action.label}

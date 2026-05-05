@@ -146,8 +146,8 @@ function BuatPOForm() {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-5">
-      <div className="flex items-center gap-3">
+    <div className="p-4 md:p-6 max-w-3xl mx-auto space-y-5">
+      <div className="flex items-start gap-3">
         <Link href="/admin/purchase-order">
           <Button variant="ghost" size="icon"><ArrowLeft size={18} /></Button>
         </Link>
@@ -202,27 +202,27 @@ function BuatPOForm() {
 
       {/* Items Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+        <div className="px-4 md:px-5 py-3 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <h2 className="font-semibold text-gray-800 text-sm">Daftar Item ({items.filter(i => i.itemName).length})</h2>
-          <Button size="sm" variant="outline" onClick={addItem}><Plus size={14} /> Tambah Baris</Button>
+          <Button size="sm" variant="outline" className="w-full sm:w-auto" onClick={addItem}><Plus size={14} /> Tambah Baris</Button>
         </div>
 
         <div className="p-3 space-y-2">
           {/* Header */}
-          <div className="grid grid-cols-12 gap-2 px-2 text-xs font-medium text-gray-400 uppercase">
-            <div className="col-span-1" />
-            <div className="col-span-4">Nama Item</div>
-            <div className="col-span-2">Qty</div>
-            <div className="col-span-3">Satuan</div>
-            <div className="col-span-2">Catatan</div>
+          <div className="hidden sm:grid sm:grid-cols-12 gap-2 px-2 text-xs font-medium text-gray-400 uppercase">
+            <div className="sm:col-span-1" />
+            <div className="sm:col-span-4">Nama Item</div>
+            <div className="sm:col-span-2">Qty</div>
+            <div className="sm:col-span-3">Satuan</div>
+            <div className="sm:col-span-2">Catatan</div>
           </div>
 
           {items.map((row, i) => (
-            <div key={i} className="grid grid-cols-12 gap-2 items-center group">
-              <div className="col-span-1 flex items-center justify-center text-gray-300 group-hover:text-gray-400">
+            <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center group border border-gray-100 rounded-xl p-3 sm:p-0 sm:border-0 sm:rounded-none">
+              <div className="hidden sm:flex sm:col-span-1 items-center justify-center text-gray-300 group-hover:text-gray-400">
                 <GripVertical size={14} />
               </div>
-              <div className="col-span-4">
+              <div className="sm:col-span-4">
                 <Input
                   placeholder="Nama produk..."
                   value={row.itemName}
@@ -230,7 +230,7 @@ function BuatPOForm() {
                   className="text-sm"
                 />
               </div>
-              <div className="col-span-2">
+              <div className="sm:col-span-2">
                 <Input
                   type="number" step="0.25" min="0"
                   placeholder="0"
@@ -239,7 +239,7 @@ function BuatPOForm() {
                   className="text-sm"
                 />
               </div>
-              <div className="col-span-3">
+              <div className="sm:col-span-3">
                 {row.unitId || !row.customUnit ? (
                   <Select
                     value={row.unitId}
@@ -264,7 +264,7 @@ function BuatPOForm() {
                   </div>
                 )}
               </div>
-              <div className="col-span-1">
+              <div className="sm:col-span-1">
                 <Input
                   placeholder="Catatan"
                   value={row.note}
@@ -272,7 +272,7 @@ function BuatPOForm() {
                   className="text-sm"
                 />
               </div>
-              <div className="col-span-1">
+              <div className="sm:col-span-1 flex justify-end">
                 {items.length > 1 && (
                   <button onClick={() => removeItem(i)}
                     className="text-red-400 hover:text-red-600 p-1 rounded">
@@ -286,14 +286,14 @@ function BuatPOForm() {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 justify-end">
+      <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
         <Link href="/admin/purchase-order">
-          <Button variant="outline">Batal</Button>
+          <Button variant="outline" className="w-full sm:w-auto">Batal</Button>
         </Link>
-        <Button variant="secondary" onClick={() => handleSubmit(true)} disabled={loading}>
+        <Button className="w-full sm:w-auto" variant="secondary" onClick={() => handleSubmit(true)} disabled={loading}>
           <Save size={15} /> Simpan Draft
         </Button>
-        <Button onClick={() => handleSubmit(false)} disabled={loading}>
+        <Button className="w-full sm:w-auto" onClick={() => handleSubmit(false)} disabled={loading}>
           <Send size={15} /> {loading ? "Menyimpan..." : "Simpan & Kirim"}
         </Button>
       </div>

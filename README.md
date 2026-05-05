@@ -75,8 +75,27 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Product unit rows (`satuan/harga/stok`) use responsive grid layout.
   - Modal footer buttons now stack on mobile and align on desktop.
 
+### Purchase Order Mobile Fix (2026-05-05)
+
+- Improved responsiveness for admin `Purchase Order` module on mobile devices.
+- `src/app/admin/purchase-order/page.tsx`:
+  - Header and filter controls now stack on mobile.
+  - PO action buttons now split mobile/desktop layout to avoid overflow.
+  - Card note text no longer truncates badly on narrow screens.
+- `src/app/admin/purchase-order/buat/page.tsx`:
+  - Create form spacing/header/actions are mobile-friendly.
+  - Item rows use responsive grid/card behavior on mobile.
+  - Primary/secondary actions now stack properly on small screens.
+- `src/app/admin/purchase-order/[id]/page.tsx`:
+  - Detail toolbar now wraps and stacks safely on mobile.
+  - PO table wrapped with horizontal scroll for small screens.
+  - Header and footer spacing adjusted for mobile.
+- `src/app/admin/purchase-order/[id]/POStatusActions.tsx`:
+  - Status buttons now wrap (`flex-wrap`) to prevent clipping.
+
 ### Change Log
 
 - 2026-05-05: Improve admin mobile responsiveness and navigation behavior in admin layout.
 - 2026-05-05: Improve invoice and pesanan responsiveness on mobile screens.
 - 2026-05-05: Improve produk page responsiveness on mobile screens.
+- 2026-05-05: Improve purchase-order pages responsiveness on mobile screens.

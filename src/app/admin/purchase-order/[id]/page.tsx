@@ -29,15 +29,15 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
   const st = statusCfg[po.status] ?? statusCfg.draft;
 
   return (
-    <div className="p-6">
+    <div className="p-4 md:p-6">
       <div className="max-w-2xl mx-auto space-y-5">
         {/* Toolbar */}
-        <div className="flex items-center justify-between print:hidden">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden">
           <Link href="/admin/purchase-order"
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
             <ArrowLeft size={16} /> Kembali
           </Link>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <POStatusActions id={po.id} status={po.status} />
             <button
               onClick={() => window.print()}
@@ -57,11 +57,11 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none print:border-none">
           {/* Header */}
-          <div className="p-6 border-b border-gray-100" style={{ borderTop: `4px solid ${po.department.color}` }}>
-            <div className="flex justify-between items-start">
+          <div className="p-4 md:p-6 border-b border-gray-100" style={{ borderTop: `4px solid ${po.department.color}` }}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
               <div>
                 <p className="text-xs text-gray-400 uppercase font-medium mb-1">Purchase Order</p>
-                <h1 className="text-2xl font-bold font-mono text-gray-900">{po.poNumber}</h1>
+                <h1 className="text-xl md:text-2xl font-bold font-mono text-gray-900 break-all">{po.poNumber}</h1>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs text-white px-2.5 py-1 rounded-full font-medium"
                     style={{ backgroundColor: po.department.color }}>
@@ -72,7 +72,7 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
                   </span>
                 </div>
               </div>
-              <div className="text-right text-sm text-gray-500">
+              <div className="text-left sm:text-right text-sm text-gray-500">
                 <p className="font-medium text-gray-800">
                   {new Date(po.orderDate).toLocaleDateString("id-ID", {
                     weekday: "long", day: "2-digit", month: "long", year: "numeric",
@@ -89,44 +89,46 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Items list */}
-          <div className="p-6">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 text-xs text-gray-400 uppercase">
-                  <th className="text-left pb-2 w-8">#</th>
-                  <th className="text-left pb-2">Nama Item</th>
-                  <th className="text-right pb-2 w-24">Qty</th>
-                  <th className="text-left pb-2 w-24 pl-3">Satuan</th>
-                  <th className="text-left pb-2 w-32 pl-3">Catatan</th>
-                </tr>
-              </thead>
-              <tbody>
-                {po.items.map((item: { id: string; itemName: string; quantity: number; unit: { name: string } | null; customUnit: string | null; note: string | null }, idx: number) => (
-                  <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2.5 text-gray-300 text-xs">{idx + 1}</td>
-                    <td className="py-2.5 font-medium text-gray-800">{item.itemName}</td>
-                    <td className="py-2.5 text-right font-bold text-gray-900">
-                      {item.quantity % 1 === 0
-                        ? item.quantity
-                        : item.quantity === 0.5 ? "½"
-                        : item.quantity === 0.25 ? "¼"
-                        : item.quantity === 0.75 ? "¾"
-                        : item.quantity}
-                    </td>
-                    <td className="py-2.5 pl-3 text-gray-500">
-                      {item.unit?.name ?? item.customUnit ?? "-"}
-                    </td>
-                    <td className="py-2.5 pl-3 text-gray-400 text-xs italic">
-                      {item.note ?? ""}
-                    </td>
+          <div className="p-4 md:p-6">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[620px] text-sm">
+                <thead>
+                  <tr className="border-b border-gray-200 text-xs text-gray-400 uppercase">
+                    <th className="text-left pb-2 w-8">#</th>
+                    <th className="text-left pb-2">Nama Item</th>
+                    <th className="text-right pb-2 w-24">Qty</th>
+                    <th className="text-left pb-2 w-24 pl-3">Satuan</th>
+                    <th className="text-left pb-2 w-32 pl-3">Catatan</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {po.items.map((item: { id: string; itemName: string; quantity: number; unit: { name: string } | null; customUnit: string | null; note: string | null }, idx: number) => (
+                    <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50">
+                      <td className="py-2.5 text-gray-300 text-xs">{idx + 1}</td>
+                      <td className="py-2.5 font-medium text-gray-800">{item.itemName}</td>
+                      <td className="py-2.5 text-right font-bold text-gray-900">
+                        {item.quantity % 1 === 0
+                          ? item.quantity
+                          : item.quantity === 0.5 ? "½"
+                          : item.quantity === 0.25 ? "¼"
+                          : item.quantity === 0.75 ? "¾"
+                          : item.quantity}
+                      </td>
+                      <td className="py-2.5 pl-3 text-gray-500">
+                        {item.unit?.name ?? item.customUnit ?? "-"}
+                      </td>
+                      <td className="py-2.5 pl-3 text-gray-400 text-xs italic">
+                        {item.note ?? ""}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 px-6 py-3 text-xs text-gray-400 text-center print:block">
+          <div className="bg-gray-50 px-4 md:px-6 py-3 text-xs text-gray-400 text-center print:block">
             Dicetak: {new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
           </div>
         </div>
