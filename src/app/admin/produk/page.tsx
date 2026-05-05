@@ -93,13 +93,13 @@ export default function ProdukPage() {
   const removePuRow = (i: number) => setPuRows(puRows.filter((_, idx) => idx !== i));
 
   return (
-    <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Produk</h1>
           <p className="text-sm text-gray-500">{products.length} produk terdaftar</p>
         </div>
-        <Button onClick={openCreate}><Plus size={16} /> Tambah Produk</Button>
+        <Button onClick={openCreate} className="w-full sm:w-auto"><Plus size={16} /> Tambah Produk</Button>
       </div>
 
       <div className="relative">
@@ -107,61 +107,111 @@ export default function ProdukPage() {
         <Input className="pl-9" placeholder="Cari produk..." value={search} onChange={(e) => setSearch(e.target.value)} />
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
-            <tr>
-              <th className="px-4 py-3 text-left">Produk</th>
-              <th className="px-4 py-3 text-left">Kategori</th>
-              <th className="px-4 py-3 text-left">Harga & Satuan</th>
-              <th className="px-4 py-3 text-left">Stok</th>
-              <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {filtered.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-10 text-center text-gray-400">
-                <Package className="mx-auto mb-2" size={28} /> Belum ada produk
-              </td></tr>
-            ) : filtered.map((p) => (
-              <tr key={p.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">
-                  <p className="font-medium text-gray-800">{p.name}</p>
-                  {p.description && <p className="text-xs text-gray-400 truncate max-w-[180px]">{p.description}</p>}
-                </td>
-                <td className="px-4 py-3 text-gray-600">{p.category?.name ?? "-"}</td>
-                <td className="px-4 py-3">
-                  {p.productUnits.map((pu) => (
-                    <div key={pu.id} className="text-xs">
-                      {formatRupiah(pu.price)} / {pu.unit.abbreviation}
-                      {pu.isDefault && <span className="ml-1 text-emerald-600">(default)</span>}
-                    </div>
-                  ))}
-                </td>
-                <td className="px-4 py-3">
-                  {p.productUnits.map((pu) => (
-                    <div key={pu.id} className="text-xs text-gray-600">
-                      {pu.stock} {pu.unit.abbreviation}
-                    </div>
-                  ))}
-                </td>
-                <td className="px-4 py-3">
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400">
+          <Package className="mx-auto mb-2" size={28} /> Belum ada produk
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3 md:hidden">
+            {filtered.map((p) => (
+              <div key={p.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium text-gray-800 break-words">{p.name}</p>
+                    {p.description && <p className="text-xs text-gray-400 mt-0.5 break-words">{p.description}</p>}
+                  </div>
                   <Badge variant={p.isActive ? "default" : "secondary"}>
                     {p.isActive ? "Aktif" : "Nonaktif"}
                   </Badge>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-1 justify-end">
-                    <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil size={15} /></Button>
-                    <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(p.id, p.name)}><Trash2 size={15} /></Button>
+                </div>
+
+                <div className="text-xs text-gray-600 space-y-2">
+                  <p><span className="text-gray-400">Kategori:</span> {p.category?.name ?? "-"}</p>
+                  <div>
+                    <p className="text-gray-400 mb-1">Harga & Satuan:</p>
+                    <div className="space-y-0.5">
+                      {p.productUnits.map((pu) => (
+                        <div key={pu.id}>
+                          {formatRupiah(pu.price)} / {pu.unit.abbreviation}
+                          {pu.isDefault && <span className="ml-1 text-emerald-600">(default)</span>}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </td>
-              </tr>
+                  <div>
+                    <p className="text-gray-400 mb-1">Stok:</p>
+                    <div className="space-y-0.5">
+                      {p.productUnits.map((pu) => (
+                        <div key={pu.id}>{pu.stock} {pu.unit.abbreviation}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-1">
+                  <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil size={15} /></Button>
+                  <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(p.id, p.name)}><Trash2 size={15} /></Button>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          <div className="hidden md:block bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[820px]">
+                <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Produk</th>
+                    <th className="px-4 py-3 text-left">Kategori</th>
+                    <th className="px-4 py-3 text-left">Harga & Satuan</th>
+                    <th className="px-4 py-3 text-left">Stok</th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {filtered.map((p) => (
+                    <tr key={p.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <p className="font-medium text-gray-800">{p.name}</p>
+                        {p.description && <p className="text-xs text-gray-400 truncate max-w-[220px]">{p.description}</p>}
+                      </td>
+                      <td className="px-4 py-3 text-gray-600">{p.category?.name ?? "-"}</td>
+                      <td className="px-4 py-3">
+                        {p.productUnits.map((pu) => (
+                          <div key={pu.id} className="text-xs">
+                            {formatRupiah(pu.price)} / {pu.unit.abbreviation}
+                            {pu.isDefault && <span className="ml-1 text-emerald-600">(default)</span>}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-4 py-3">
+                        {p.productUnits.map((pu) => (
+                          <div key={pu.id} className="text-xs text-gray-600">
+                            {pu.stock} {pu.unit.abbreviation}
+                          </div>
+                        ))}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={p.isActive ? "default" : "secondary"}>
+                          {p.isActive ? "Aktif" : "Nonaktif"}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex gap-1 justify-end">
+                          <Button size="icon" variant="ghost" onClick={() => openEdit(p)}><Pencil size={15} /></Button>
+                          <Button size="icon" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(p.id, p.name)}><Trash2 size={15} /></Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -179,7 +229,7 @@ export default function ProdukPage() {
                 <label className="text-sm font-medium text-gray-700 block mb-1">Deskripsi</label>
                 <Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Deskripsi singkat" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-sm font-medium text-gray-700 block mb-1">Kategori</label>
                   <Select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}>
@@ -203,23 +253,23 @@ export default function ProdukPage() {
                 </div>
                 <div className="space-y-2">
                   {puRows.map((row, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                      <Select className="flex-1" value={row.unitId} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, unitId: e.target.value } : r))}>
+                    <div key={i} className="grid grid-cols-1 sm:grid-cols-[1fr_7rem_5rem_auto] gap-2 items-center">
+                      <Select className="w-full" value={row.unitId} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, unitId: e.target.value } : r))}>
                         <option value="">Pilih satuan</option>
                         {units.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.abbreviation})</option>)}
                       </Select>
-                      <Input className="w-28" type="number" placeholder="Harga" value={row.price} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, price: e.target.value } : r))} />
-                      <Input className="w-20" type="number" placeholder="Stok" value={row.stock} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, stock: e.target.value } : r))} />
-                      {i > 0 && <Button size="icon" variant="ghost" className="text-red-500" onClick={() => removePuRow(i)}><Trash2 size={14} /></Button>}
+                      <Input className="w-full" type="number" placeholder="Harga" value={row.price} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, price: e.target.value } : r))} />
+                      <Input className="w-full" type="number" placeholder="Stok" value={row.stock} onChange={(e) => setPuRows(puRows.map((r, idx) => idx === i ? { ...r, stock: e.target.value } : r))} />
+                      {i > 0 && <Button size="icon" variant="ghost" className="text-red-500 justify-self-end" onClick={() => removePuRow(i)}><Trash2 size={14} /></Button>}
                     </div>
                   ))}
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Baris pertama otomatis jadi satuan default</p>
               </div>
             </div>
-            <div className="p-5 border-t border-gray-100 flex gap-3 justify-end">
-              <Button variant="outline" onClick={() => setShowModal(false)}>Batal</Button>
-              <Button onClick={handleSubmit} disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</Button>
+            <div className="p-5 border-t border-gray-100 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+              <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowModal(false)}>Batal</Button>
+              <Button className="w-full sm:w-auto" onClick={handleSubmit} disabled={loading}>{loading ? "Menyimpan..." : "Simpan"}</Button>
             </div>
           </div>
         </div>

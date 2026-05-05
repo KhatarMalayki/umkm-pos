@@ -64,7 +64,19 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Items table wrapped with horizontal scroll.
   - Totals/footer spacing adjusted for small screens.
 
+### Produk Mobile Fix (2026-05-05)
+
+- Improved responsiveness for admin `Produk` page on mobile devices.
+- `src/app/admin/produk/page.tsx`:
+  - Header action (`Tambah Produk`) now mobile-friendly.
+  - Added dedicated mobile card layout (`md:hidden`) for product list.
+  - Desktop table is now `md+` only with horizontal safety wrapper.
+  - Product modal form fields now stack properly on small screens.
+  - Product unit rows (`satuan/harga/stok`) use responsive grid layout.
+  - Modal footer buttons now stack on mobile and align on desktop.
+
 ### Change Log
 
 - 2026-05-05: Improve admin mobile responsiveness and navigation behavior in admin layout.
 - 2026-05-05: Improve invoice and pesanan responsiveness on mobile screens.
+- 2026-05-05: Improve produk page responsiveness on mobile screens.
