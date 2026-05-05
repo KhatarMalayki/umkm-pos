@@ -93,9 +93,21 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `src/app/admin/purchase-order/[id]/POStatusActions.tsx`:
   - Status buttons now wrap (`flex-wrap`) to prevent clipping.
 
+### Purchase Order Detail Stabilization (2026-05-05)
+
+- Fixed runtime error when viewing a PO detail with no department assigned.
+- `src/app/admin/purchase-order/[id]/page.tsx`:
+  - Added safe fallbacks for department badge color and name.
+  - Ensured header border color has a safe default.
+- `src/app/admin/purchase-order/[id]/PrintButton.tsx`:
+  - Added a client-only print button component to avoid SSR issues.
+- `src/app/api/purchase-orders/[id]/route.ts`:
+  - Corrected Next.js route handler `params` typing and removed unnecessary `await` usage.
+
 ### Change Log
 
 - 2026-05-05: Improve admin mobile responsiveness and navigation behavior in admin layout.
 - 2026-05-05: Improve invoice and pesanan responsiveness on mobile screens.
 - 2026-05-05: Improve produk page responsiveness on mobile screens.
 - 2026-05-05: Improve purchase-order pages responsiveness on mobile screens.
+- 2026-05-05: Stabilize purchase-order detail page (params typing fix, client PrintButton, safe fallbacks for department fields).

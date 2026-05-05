@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { Printer, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import POStatusActions from "./POStatusActions";
+import PrintButton from "./PrintButton";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,8 @@ const statusCfg: Record<string, { label: string; bg: string; text: string }> = {
   cancelled: { label: "Dibatalkan", bg: "bg-red-100",    text: "text-red-700"    },
 };
 
-export default async function PODetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function PODetailPage({ params }: { params: { id: string } }) {
+  const { id } = params;
 
   const po = await prisma.purchaseOrder.findUnique({
     where: { id },
@@ -39,12 +40,7 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <POStatusActions id={po.id} status={po.status} />
-            <button
-              onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
-            >
-              <Printer size={15} /> Cetak
-            </button>
+            <PrintButton />
             {(po.status === "approved" || po.status === "cancelled") && (
               <Link href={`/admin/purchase-order/buat?reorder=${po.id}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
@@ -57,15 +53,15 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden print:shadow-none print:border-none">
           {/* Header */}
-          <div className="p-4 md:p-6 border-b border-gray-100" style={{ borderTop: `4px solid ${po.department.color}` }}>
+          <div className="p-4 md:p-6 border-b border-gray-100" style={{ borderTop: `4px solid ${po.department?.color || "#22c55e"}` }}>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start">
               <div>
                 <p className="text-xs text-gray-400 uppercase font-medium mb-1">Purchase Order</p>
                 <h1 className="text-xl md:text-2xl font-bold font-mono text-gray-900 break-all">{po.poNumber}</h1>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="text-xs text-white px-2.5 py-1 rounded-full font-medium"
-                    style={{ backgroundColor: po.department.color }}>
-                    {po.department.name}
+                    style={{ backgroundColor: po.department?.color || "#22c55e" }}>
+                    {po.department?.name ?? "Umum"}
                   </span>
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${st.bg} ${st.text}`}>
                     {st.label}

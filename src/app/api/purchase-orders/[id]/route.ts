@@ -19,8 +19,8 @@ const UpdateSchema = z.object({
   items: z.array(ItemSchema).optional(),
 });
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
   const po = await prisma.purchaseOrder.findUnique({
     where: { id },
     include: {
@@ -32,8 +32,8 @@ export async function GET(_: NextRequest, { params }: { params: Promise<{ id: st
   return NextResponse.json(po);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
   try {
     const body = await req.json();
     const data = UpdateSchema.parse(body);
@@ -72,8 +72,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
   const { status } = await req.json();
   const valid = ["draft", "submitted", "approved", "cancelled"];
   if (!valid.includes(status)) return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
@@ -86,8 +86,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json(po);
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
   await prisma.purchaseOrder.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
