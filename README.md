@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Project Notes
+
+### Admin Dashboard Mobile Fix (2026-05-05)
+
+- Fixed admin dashboard layout not responsive on phone screens.
+- Refactored `src/app/admin/layout.tsx` to use:
+  - Desktop-only fixed sidebar (`md:flex`)
+  - Mobile top bar with menu button
+  - Mobile slide-in drawer sidebar with backdrop overlay
+  - Auto-close drawer on route change
+- Updated main content container to avoid clipping (`min-w-0`, `h-dvh`, mobile-first layout).
+
+### Change Log
+
+- 2026-05-05: Improve admin mobile responsiveness and navigation behavior in admin layout.
