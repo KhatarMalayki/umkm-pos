@@ -111,3 +111,15 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - 2026-05-05: Improve produk page responsiveness on mobile screens.
 - 2026-05-05: Improve purchase-order pages responsiveness on mobile screens.
 - 2026-05-05: Stabilize purchase-order detail page (params typing fix, client PrintButton, safe fallbacks for department fields).
+- 2026-05-10: Add initial Stock Opname backend foundation (Prisma models + API endpoints) and DB sync.
+
+### Stock Opname Progress (2026-05-10)
+
+- Added Prisma models:
+  - `StockOpname`
+  - `StockOpnameItem`
+- Added API endpoints:
+  - `src/app/api/stock-opnames/route.ts` (GET, POST)
+  - `src/app/api/stock-opnames/[id]/route.ts` (GET, PUT, PATCH, DELETE)
+- Implemented stock finalization flow:
+  - On `status = completed`, stock values are written to `ProductUnit.stock` via transaction.

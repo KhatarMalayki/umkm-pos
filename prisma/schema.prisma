@@ -35,12 +35,13 @@ model Category {
 }
 
 model Unit {
-  id              String            @id @default(cuid())
-  name            String            @unique
+  id              String              @id @default(cuid())
+  name            String              @unique
   abbreviation    String
   orderItems      OrderItem[]
   productUnits    ProductUnit[]
   poItems         PurchaseOrderItem[]
+  StockOpnameItem StockOpnameItem[]
 }
 
 model Department {
@@ -77,17 +78,18 @@ model PurchaseOrderItem {
 }
 
 model Product {
-  id           String        @id @default(cuid())
-  name         String
-  description  String?
-  imageUrl     String?
-  categoryId   String?
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  category     Category?     @relation(fields: [categoryId], references: [id])
-  productUnits ProductUnit[]
-  orderItems   OrderItem[]
+  id              String            @id @default(cuid())
+  name            String
+  description     String?
+  imageUrl        String?
+  categoryId      String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  category        Category?         @relation(fields: [categoryId], references: [id])
+  productUnits    ProductUnit[]
+  orderItems      OrderItem[]
+  StockOpnameItem StockOpnameItem[]
 }
 
 model ProductUnit {
@@ -104,15 +106,15 @@ model ProductUnit {
 }
 
 model Discount {
-  id         String   @id @default(cuid())
-  code       String   @unique
-  type       String   // "percent" | "nominal"
-  value      Float
-  minOrder   Float    @default(0)
-  isActive   Boolean  @default(true)
-  expiredAt  DateTime?
-  createdAt  DateTime @default(now())
-  orders     Order[]
+  id        String    @id @default(cuid())
+  code      String    @unique
+  type      String // "percent" | "nominal"
+  value     Float
+  minOrder  Float     @default(0)
+  isActive  Boolean   @default(true)
+  expiredAt DateTime?
+  createdAt DateTime  @default(now())
+  orders    Order[]
 }
 
 model Order {
@@ -121,7 +123,7 @@ model Order {
   customerName  String
   customerPhone String?
   customerNote  String?
-  paymentMethod String      // "cod" | "transfer"
+  paymentMethod String // "cod" | "transfer"
   status        String      @default("pending") // pending | confirmed | processing | done | cancelled
   discountId    String?
   discountValue Float       @default(0)
@@ -148,11 +150,37 @@ model OrderItem {
 }
 
 model Invoice {
-  id          String   @id @default(cuid())
-  orderId     String   @unique
-  invoiceNumber String @unique
-  issuedAt    DateTime @default(now())
-  dueDate     DateTime?
-  note        String?
-  order       Order    @relation(fields: [orderId], references: [id])
+  id            String    @id @default(cuid())
+  orderId       String    @unique
+  invoiceNumber String    @unique
+  issuedAt      DateTime  @default(now())
+  dueDate       DateTime?
+  note          String?
+  order         Order     @relation(fields: [orderId], references: [id])
+}
+
+model StockOpname {
+  id        String   @id @default(cuid())
+  date      DateTime @default(now())
+  note      String?
+  status    String   @default("draft") // draft | completed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items StockOpnameItem[]
+}
+
+model StockOpnameItem {
+  id            String  @id @default(cuid())
+  stockOpnameId String
+  productId     String
+  unitId        String
+  systemStock   Int
+  actualStock   Int
+  difference    Int
+  note          String?
+
+  stockOpname StockOpname @relation(fields: [stockOpnameId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id])
+  unit        Unit        @relation(fields: [unitId], references: [id])
 }
