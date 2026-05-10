@@ -17,6 +17,7 @@ import {
   ClipboardCheck,
   LogOut,
   User,
+  Users,
   Settings,
   Menu,
   X,
@@ -59,7 +60,10 @@ const navGroups = [
   },
   {
     title: "Sistem",
-    items: [{ href: "/admin/pengaturan", label: "Pengaturan", icon: Settings }],
+    items: [
+      { href: "/admin/pengguna", label: "Pengguna", icon: Users },
+      { href: "/admin/pengaturan", label: "Pengaturan", icon: Settings },
+    ],
   },
 ];
 

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import {
   Plus, Search, Eye, Trash2, CheckCircle,
-  Send, RotateCcw, ClipboardList,
+  Send, RotateCcw, ClipboardList, Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,6 +144,11 @@ export default function PurchaseOrderPage() {
                     <Link href={`/admin/purchase-order/${po.id}`}>
                       <Button size="sm" variant="outline"><Eye size={14} /> Lihat</Button>
                     </Link>
+                    {po.status === "draft" && (
+                      <Link href={`/admin/purchase-order/buat?edit=${po.id}`}>
+                        <Button size="sm" variant="ghost" title="Edit Draft"><Pencil size={14} /></Button>
+                      </Link>
+                    )}
                     {(po.status === "approved" || po.status === "cancelled") && (
                       <Link href={`/admin/purchase-order/buat?reorder=${po.id}`}>
                         <Button size="sm" variant="ghost" title="Reorder"><RotateCcw size={14} /></Button>
@@ -172,6 +177,11 @@ export default function PurchaseOrderPage() {
                   <Link href={`/admin/purchase-order/${po.id}`}>
                     <Button size="sm" variant="outline"><Eye size={14} /> Lihat</Button>
                   </Link>
+                  {po.status === "draft" && (
+                    <Link href={`/admin/purchase-order/buat?edit=${po.id}`}>
+                      <Button size="sm" variant="ghost" title="Edit Draft"><Pencil size={14} /></Button>
+                    </Link>
+                  )}
                   {(po.status === "approved" || po.status === "cancelled") && (
                     <Link href={`/admin/purchase-order/buat?reorder=${po.id}`}>
                       <Button size="sm" variant="ghost" title="Reorder"><RotateCcw size={14} /></Button>

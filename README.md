@@ -154,6 +154,17 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - `src/app/api/orders/[id]/route.ts`: PATCH sekarang mendukung pengurangan qty item, otomatis hitung ulang subtotal/discount/total dan mengembalikan stok selisih.
 - `src/app/admin/invoice/[id]/page.tsx` + `EditInvoiceItems.tsx`: admin bisa mengurangi qty item invoice (dan memicu penyesuaian total + stok) via UI.
 
+### Edit Draft PO & Manajemen Pengguna (2026-05-11)
+
+- **Edit Draft Purchase Order**:
+  - `src/app/admin/purchase-order/buat/page.tsx` mendukung query `?edit=<id>` untuk memuat dan menyimpan ulang draft via PUT.
+  - Tombol `Edit Draft` ditambahkan di list (`src/app/admin/purchase-order/page.tsx`) dan detail (`src/app/admin/purchase-order/[id]/page.tsx`) untuk status `draft`.
+- **Manajemen Pengguna**:
+  - API baru `src/app/api/users/route.ts` (GET list, POST create) & `src/app/api/users/[id]/route.ts` (PATCH update, DELETE) dengan validasi role admin.
+  - Aturan keamanan: tidak boleh hapus akun sendiri, dan minimal 1 admin harus tersisa.
+  - Halaman admin baru `src/app/admin/pengguna/page.tsx` (list + modal tambah/edit, role admin/kasir, ganti password).
+  - Menu `Pengguna` ditambahkan ke sidebar admin (`src/app/admin/layout.tsx`).
+
 ### Change Log (Tambahan)
 
 - 2026-05-10: Fix dashboard omzet agar transfer ikut terhitung, tambah omset bulanan + riwayat 6 bulan.

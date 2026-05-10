@@ -21,6 +21,7 @@ function BuatPOForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reorderId = searchParams.get("reorder");
+  const editId = searchParams.get("edit");
 
   const [departments, setDepartments] = useState<Department[]>([]);
   const [units, setUnits] = useState<Unit[]>([]);
@@ -38,14 +39,18 @@ function BuatPOForm() {
     ]).then(([d, u]) => { setDepartments(d); setUnits(u); });
   }, []);
 
-  // Reorder: load previous PO items
+  // Reorder or Edit: load existing PO items
   useEffect(() => {
-    if (!reorderId) return;
+    const sourceId = reorderId || editId;
+    if (!sourceId) return;
     setLoadingReorder(true);
-    fetch(`/api/purchase-orders/${reorderId}`)
+    fetch(`/api/purchase-orders/${sourceId}`)
       .then((r) => r.json())
       .then((po) => {
         setDepartmentId(po.departmentId);
+        if (po.orderDate) {
+          setOrderDate(new Date(po.orderDate).toISOString().slice(0, 10));
+        }
         setNote(po.note ?? "");
         setItems(
           po.items.map((i: { itemName: string; quantity: number; unitId?: string; customUnit?: string; note?: string }) => ({
@@ -56,10 +61,10 @@ function BuatPOForm() {
             note: i.note ?? "",
           }))
         );
-        toast.success("Data dari PO sebelumnya berhasil dimuat");
+        toast.success(editId ? "Draft PO dimuat untuk diedit" : "Data dari PO sebelumnya berhasil dimuat");
       })
       .finally(() => setLoadingReorder(false));
-  }, [reorderId]);
+  }, [reorderId, editId]);
 
   const updateItem = (i: number, field: keyof POItem, value: string) => {
     setItems((prev) => prev.map((row, idx) => idx === i ? { ...row, [field]: value } : row));
@@ -115,21 +120,26 @@ function BuatPOForm() {
     if (validItems.length === 0) { toast.error("Minimal 1 item"); return; }
 
     setLoading(true);
-    const res = await fetch("/api/purchase-orders", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        departmentId, orderDate, note,
-        items: validItems.map((i, idx) => ({
-          itemName: i.itemName.trim(),
-          quantity: parseFloat(i.quantity) || 0,
-          unitId: i.unitId || null,
-          customUnit: !i.unitId && i.customUnit ? i.customUnit : null,
-          note: i.note || null,
-          sortOrder: idx,
-        })),
-      }),
-    });
+    const payload = {
+      departmentId, orderDate, note,
+      items: validItems.map((i, idx) => ({
+        itemName: i.itemName.trim(),
+        quantity: parseFloat(i.quantity) || 0,
+        unitId: i.unitId || null,
+        customUnit: !i.unitId && i.customUnit ? i.customUnit : null,
+        note: i.note || null,
+        sortOrder: idx,
+      })),
+    };
+    const res = editId
+      ? await fetch(`/api/purchase-orders/${editId}`, {
+          method: "PUT", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      : await fetch("/api/purchase-orders", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
     setLoading(false);
 
     if (res.ok) {
@@ -140,7 +150,11 @@ function BuatPOForm() {
           body: JSON.stringify({ status: "submitted" }),
         });
       }
-      toast.success(asDraft ? "PO tersimpan sebagai draft" : "PO dikirim!");
+      toast.success(
+        editId
+          ? (asDraft ? "Draft PO diperbarui" : "Draft PO diperbarui & dikirim")
+          : (asDraft ? "PO tersimpan sebagai draft" : "PO dikirim!")
+      );
       router.push("/admin/purchase-order");
     } else toast.error("Gagal menyimpan PO");
   };
@@ -153,7 +167,7 @@ function BuatPOForm() {
         </Link>
         <div>
           <h1 className="text-xl font-bold text-gray-900">
-            {reorderId ? "Reorder — Buat PO Baru" : "Buat Purchase Order"}
+            {editId ? "Edit Draft Purchase Order" : reorderId ? "Reorder — Buat PO Baru" : "Buat Purchase Order"}
           </h1>
           <p className="text-sm text-gray-500">Orderan belanja harian</p>
         </div>
@@ -161,7 +175,7 @@ function BuatPOForm() {
 
       {loadingReorder && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-sm text-blue-700">
-          Memuat data PO sebelumnya...
+          {editId ? "Memuat draft PO untuk diedit..." : "Memuat data PO sebelumnya..."}
         </div>
       )}
 

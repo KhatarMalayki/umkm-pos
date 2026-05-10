@@ -41,6 +41,12 @@ export default async function PODetailPage({ params }: { params: Promise<{ id: s
           <div className="flex flex-wrap items-center gap-2">
             <POStatusActions id={po.id} status={po.status} />
             <PrintButton />
+            {po.status === "draft" && (
+              <Link href={`/admin/purchase-order/buat?edit=${po.id}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm hover:bg-emerald-200">
+                Edit Draft
+              </Link>
+            )}
             {(po.status === "approved" || po.status === "cancelled") && (
               <Link href={`/admin/purchase-order/buat?reorder=${po.id}`}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
