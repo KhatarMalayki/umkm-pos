@@ -7,17 +7,37 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Calendar,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+];
+
 async function getStats() {
+  const now = new Date();
+  const startOfDay = new Date(now);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // 6 month historical window (including current month)
+  const startOfHistory = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+
+  // Anything that is not cancelled counts as omset (both COD and Transfer)
+  const omsetWhere = { status: { not: "cancelled" } } as const;
+
   const [
     totalOrders,
     pendingOrders,
     doneOrders,
     totalProducts,
     todayRevenue,
+    monthRevenue,
+    historyOrders,
     recentOrders,
   ] = await Promise.all([
     prisma.order.count(),
@@ -26,12 +46,26 @@ async function getStats() {
     prisma.product.count({ where: { isActive: true } }),
     prisma.order.aggregate({
       where: {
-        status: "done",
-        createdAt: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        },
+        ...omsetWhere,
+        createdAt: { gte: startOfDay },
       },
       _sum: { total: true },
+      _count: { _all: true },
+    }),
+    prisma.order.aggregate({
+      where: {
+        ...omsetWhere,
+        createdAt: { gte: startOfMonth },
+      },
+      _sum: { total: true },
+      _count: { _all: true },
+    }),
+    prisma.order.findMany({
+      where: {
+        ...omsetWhere,
+        createdAt: { gte: startOfHistory },
+      },
+      select: { total: true, createdAt: true },
     }),
     prisma.order.findMany({
       take: 5,
@@ -40,7 +74,38 @@ async function getStats() {
     }),
   ]);
 
-  return { totalOrders, pendingOrders, doneOrders, totalProducts, todayRevenue, recentOrders };
+  // Build monthly history buckets (oldest -> newest)
+  const monthly: { key: string; label: string; total: number; count: number }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthly.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      label: `${MONTH_LABELS[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`,
+      total: 0,
+      count: 0,
+    });
+  }
+  const bucketIndex = new Map(monthly.map((m, idx) => [m.key, idx]));
+  for (const o of historyOrders) {
+    const d = new Date(o.createdAt);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    const idx = bucketIndex.get(key);
+    if (idx !== undefined) {
+      monthly[idx].total += o.total;
+      monthly[idx].count += 1;
+    }
+  }
+
+  return {
+    totalOrders,
+    pendingOrders,
+    doneOrders,
+    totalProducts,
+    todayRevenue,
+    monthRevenue,
+    monthly,
+    recentOrders,
+  };
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
@@ -52,8 +117,20 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 };
 
 export default async function AdminPage() {
-  const { totalOrders, pendingOrders, doneOrders, totalProducts, todayRevenue, recentOrders } =
-    await getStats();
+  const {
+    totalOrders,
+    pendingOrders,
+    doneOrders,
+    totalProducts,
+    todayRevenue,
+    monthRevenue,
+    monthly,
+    recentOrders,
+  } = await getStats();
+
+  const todayCount = todayRevenue._count?._all ?? 0;
+  const monthCount = monthRevenue._count?._all ?? 0;
+  const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
 
   const cards = [
     {
@@ -81,12 +158,20 @@ export default async function AdminPage() {
       sub: "produk tersedia",
     },
     {
-      label: "Omzet Hari Ini",
+      label: "Omset Hari Ini",
       value: formatRupiah(todayRevenue._sum.total ?? 0),
       icon: TrendingUp,
       gradient: "from-emerald-500 to-teal-600",
       shadow: "shadow-emerald-500/20",
-      sub: "dari pesanan selesai",
+      sub: `${todayCount} pesanan (COD + Transfer)`,
+    },
+    {
+      label: "Omset Bulan Ini",
+      value: formatRupiah(monthRevenue._sum.total ?? 0),
+      icon: Calendar,
+      gradient: "from-amber-500 to-orange-600",
+      shadow: "shadow-amber-500/20",
+      sub: `${monthCount} pesanan bulan berjalan`,
     },
   ];
 
@@ -105,7 +190,7 @@ export default async function AdminPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {cards.map(({ label, value, icon: Icon, gradient, shadow, sub }) => (
           <div
             key={label}
@@ -124,6 +209,46 @@ export default async function AdminPage() {
             <p className="relative text-xs text-slate-400 mt-1">{sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Monthly Omset History */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+            <TrendingUp size={15} className="text-amber-600" />
+          </div>
+          <div className="flex-1">
+            <h2 className="font-semibold text-slate-900">Riwayat Omset</h2>
+            <p className="text-xs text-slate-500">6 bulan terakhir (semua pesanan kecuali dibatalkan)</p>
+          </div>
+        </div>
+        <div className="p-5">
+          <div className="grid grid-cols-6 gap-2 sm:gap-3 items-end h-44">
+            {monthly.map((m) => {
+              const heightPct = (m.total / maxMonthly) * 100;
+              return (
+                <div key={m.key} className="flex flex-col items-center justify-end gap-1.5 h-full">
+                  <span className="text-[10px] font-semibold text-slate-700 tabular-nums">
+                    {m.total > 0 ? formatRupiah(m.total) : "-"}
+                  </span>
+                  <div
+                    className="w-full bg-gradient-to-t from-amber-500 to-orange-400 rounded-t-md min-h-[4px] transition-all"
+                    style={{ height: `${Math.max(2, heightPct)}%` }}
+                    title={`${m.label}: ${formatRupiah(m.total)} (${m.count} pesanan)`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-6 gap-2 sm:gap-3 mt-2">
+            {monthly.map((m) => (
+              <div key={`${m.key}-label`} className="text-center">
+                <p className="text-[11px] font-medium text-slate-600">{m.label}</p>
+                <p className="text-[10px] text-slate-400">{m.count} pesanan</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Recent Orders */}
