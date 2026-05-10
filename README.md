@@ -148,6 +148,12 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - `src/app/admin/stock-opname/[id]/StockOpnameActions.tsx` (selesaikan/hapus)
 - Menambahkan menu `Stock Opname` di sidebar admin.
 
+### Order & Invoice Update (2026-05-11)
+
+- `src/app/admin/pesanan/page.tsx`: menampilkan `customerNote` langsung di daftar ORD.
+- `src/app/api/orders/[id]/route.ts`: PATCH sekarang mendukung pengurangan qty item, otomatis hitung ulang subtotal/discount/total dan mengembalikan stok selisih.
+- `src/app/admin/invoice/[id]/page.tsx` + `EditInvoiceItems.tsx`: admin bisa mengurangi qty item invoice (dan memicu penyesuaian total + stok) via UI.
+
 ### Change Log (Tambahan)
 
 - 2026-05-10: Fix dashboard omzet agar transfer ikut terhitung, tambah omset bulanan + riwayat 6 bulan.

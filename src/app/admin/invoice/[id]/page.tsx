@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { formatRupiah } from "@/lib/utils";
 import { notFound } from "next/navigation";
 import PrintButton from "./PrintButton";
+import EditInvoiceItems from "./EditInvoiceItems";
 
 const normalizeWhatsAppNumber = (raw?: string | null) => {
   if (!raw) return "";
@@ -113,51 +114,22 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          {/* Items */}
-          <div className="p-4 md:p-6">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[560px] text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase">
-                    <th className="text-left pb-3">Produk</th>
-                    <th className="text-right pb-3">Qty</th>
-                    <th className="text-right pb-3">Harga</th>
-                    <th className="text-right pb-3">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {order.items.map((item) => (
-                    <tr key={item.id} className="border-b border-gray-50">
-                      <td className="py-3 text-gray-800">{item.product.name}</td>
-                      <td className="py-3 text-right text-gray-600">{item.quantity} {item.unit.abbreviation}</td>
-                      <td className="py-3 text-right text-gray-600">{formatRupiah(item.price)}</td>
-                      <td className="py-3 text-right font-medium">{formatRupiah(item.subtotal)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Totals */}
-            <div className="mt-4 flex justify-end">
-              <div className="w-full max-w-64 space-y-2">
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Subtotal</span>
-                  <span>{formatRupiah(order.subtotal)}</span>
-                </div>
-                {order.discountValue > 0 && (
-                  <div className="flex justify-between text-sm text-red-500">
-                    <span>Diskon {order.discount ? `(${order.discount.code})` : ""}</span>
-                    <span>- {formatRupiah(order.discountValue)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-base font-bold text-emerald-700 border-t border-gray-200 pt-2">
-                  <span>Total</span>
-                  <span>{formatRupiah(order.total)}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Items (editable to reduce qty) */}
+          <EditInvoiceItems
+            orderId={order.id}
+            discountLabel={order.discount ? order.discount.code : null}
+            discountValue={order.discountValue}
+            subtotal={order.subtotal}
+            total={order.total}
+            items={order.items.map((item) => ({
+              id: item.id,
+              name: item.product.name,
+              quantity: item.quantity,
+              price: item.price,
+              unitAbbr: item.unit.abbreviation,
+              subtotal: item.subtotal,
+            }))}
+          />
 
           {/* Footer */}
           <div className="bg-gray-50 px-4 md:px-6 py-4 text-center text-xs text-gray-400">

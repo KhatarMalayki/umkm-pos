@@ -13,6 +13,7 @@ import Link from "next/link";
 type OrderItem = { id: string; quantity: number; price: number; subtotal: number; product: { name: string }; unit: { abbreviation: string } };
 type Order = {
   id: string; orderNumber: string; customerName: string; customerPhone: string | null;
+  customerNote?: string | null;
   paymentMethod: string; status: string; subtotal: number; discountValue: number; total: number;
   createdAt: string; items: OrderItem[]; invoice: { invoiceNumber: string } | null;
 };
@@ -183,6 +184,9 @@ export default function PesananPage() {
                         {o.customerName} · {o.paymentMethod === "cod" ? "COD" : "Transfer"} ·{" "}
                         {new Date(o.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                       </p>
+                      {o.customerNote && (
+                        <p className="mt-1 text-xs text-gray-600 italic break-words">“{o.customerNote}”</p>
+                      )}
                     </div>
                   </div>
                   <div className="text-right shrink-0">
