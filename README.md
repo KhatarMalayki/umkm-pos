@@ -112,6 +112,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - 2026-05-05: Improve purchase-order pages responsiveness on mobile screens.
 - 2026-05-05: Stabilize purchase-order detail page (params typing fix, client PrintButton, safe fallbacks for department fields).
 - 2026-05-10: Add initial Stock Opname backend foundation (Prisma models + API endpoints) and DB sync.
+- 2026-05-10: Fix Railway build for Next.js 16 by using Promise-based `params` typing in `stock-opnames/[id]` route handlers.
 
 ### Stock Opname Progress (2026-05-10)
 

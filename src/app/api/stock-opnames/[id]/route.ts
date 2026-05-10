@@ -15,8 +15,8 @@ type UpdateStockOpnameBody = {
   items?: StockOpnameItemInput[];
 };
 
-export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const stockOpname = await prisma.stockOpname.findUnique({
     where: { id },
     include: {
@@ -33,8 +33,8 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   return NextResponse.json(stockOpname);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { date, note, items } = (await req.json()) as UpdateStockOpnameBody;
 
   try {
@@ -65,8 +65,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { status } = await req.json();
 
   if (status !== "completed" && status !== "draft") {
@@ -117,8 +117,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   await prisma.stockOpname.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
