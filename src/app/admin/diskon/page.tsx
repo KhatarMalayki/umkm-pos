@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Trash2, ToggleLeft, ToggleRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { formatRupiah } from "@/lib/utils";
+import Link from "next/link";
 
 type Discount = {
   id: string; code: string; type: string; value: number;
@@ -58,6 +59,9 @@ export default function DiskonPage() {
   return (
     <div className="p-6 space-y-5">
       <div>
+        <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-1">
+          <ArrowLeft size={14} /> Kembali
+        </Link>
         <h1 className="text-2xl font-bold text-gray-900">Diskon</h1>
         <p className="text-sm text-gray-500">{discounts.length} kode diskon</p>
       </div>

@@ -124,3 +124,33 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - `src/app/api/stock-opnames/[id]/route.ts` (GET, PUT, PATCH, DELETE)
 - Implemented stock finalization flow:
   - On `status = completed`, stock values are written to `ProductUnit.stock` via transaction.
+
+### Dashboard & Navigasi Improvement (2026-05-10)
+
+- `src/app/admin/page.tsx`:
+  - Perhitungan omzet diperbarui agar mencakup pesanan COD + Transfer (semua selain `cancelled`).
+  - Menambahkan kartu `Omset Bulan Ini`.
+  - Menambahkan grafik riwayat omset 6 bulan terakhir beserta jumlah pesanan per bulan.
+- `src/app/admin/layout.tsx`:
+  - Menambahkan bubble merah jumlah pesanan `pending` pada menu `Pesanan` (desktop + mobile), auto-refresh setiap 30 detik.
+- Menambahkan tombol `Kembali` pada halaman:
+  - `src/app/admin/kategori/page.tsx`
+  - `src/app/admin/satuan/page.tsx`
+  - `src/app/admin/diskon/page.tsx`
+  - `src/app/admin/pengaturan/page.tsx`
+
+### Stock Opname Admin UI (2026-05-10)
+
+- Menambahkan modul admin stock opname:
+  - `src/app/admin/stock-opname/page.tsx` (list)
+  - `src/app/admin/stock-opname/buat/page.tsx` (buat draft)
+  - `src/app/admin/stock-opname/[id]/page.tsx` (detail)
+  - `src/app/admin/stock-opname/[id]/StockOpnameActions.tsx` (selesaikan/hapus)
+- Menambahkan menu `Stock Opname` di sidebar admin.
+
+### Change Log (Tambahan)
+
+- 2026-05-10: Fix dashboard omzet agar transfer ikut terhitung, tambah omset bulanan + riwayat 6 bulan.
+- 2026-05-10: Tambah modul UI Stock Opname di admin (list, buat, detail, aksi).
+- 2026-05-10: Tambah tombol kembali di beberapa halaman pengelolaan admin.
+- 2026-05-10: Tambah bubble notifikasi merah jumlah pesanan pending di sidebar admin.

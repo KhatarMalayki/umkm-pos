@@ -76,6 +76,7 @@ export default function AdminLayout({
     role: string;
   } | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -89,6 +90,31 @@ export default function AdminLayout({
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let active = true;
+
+    const fetchPendingCount = () => {
+      fetch("/api/orders?status=pending")
+        .then((r) => r.json())
+        .then((d) => {
+          if (!active) return;
+          setPendingOrderCount(Array.isArray(d) ? d.length : 0);
+        })
+        .catch(() => {
+          if (!active) return;
+          setPendingOrderCount(0);
+        });
+    };
+
+    fetchPendingCount();
+    const intervalId = setInterval(fetchPendingCount, 30000);
+
+    return () => {
+      active = false;
+      clearInterval(intervalId);
+    };
+  }, []);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -127,6 +153,7 @@ export default function AdminLayout({
                 const active =
                   pathname === href ||
                   (href !== "/admin" && pathname.startsWith(href));
+                const isPesanan = href === "/admin/pesanan";
                 return (
                   <Link
                     key={href}
@@ -151,6 +178,11 @@ export default function AdminLayout({
                       )}
                     />
                     <span className="flex-1">{label}</span>
+                    {isPesanan && pendingOrderCount > 0 && (
+                      <span className="inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {pendingOrderCount > 99 ? "99+" : pendingOrderCount}
+                      </span>
+                    )}
                     {active && (
                       <ChevronRight size={14} className="text-emerald-400" />
                     )}
@@ -251,6 +283,7 @@ export default function AdminLayout({
                 const active =
                   pathname === href ||
                   (href !== "/admin" && pathname.startsWith(href));
+                const isPesanan = href === "/admin/pesanan";
                 return (
                   <Link
                     key={href}
@@ -275,6 +308,11 @@ export default function AdminLayout({
                       )}
                     />
                     <span className="flex-1">{label}</span>
+                    {isPesanan && pendingOrderCount > 0 && (
+                      <span className="inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                        {pendingOrderCount > 99 ? "99+" : pendingOrderCount}
+                      </span>
+                    )}
                     {active && (
                       <ChevronRight size={14} className="text-emerald-400" />
                     )}

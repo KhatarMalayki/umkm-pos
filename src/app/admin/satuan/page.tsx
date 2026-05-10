@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, Tag } from "lucide-react";
+import { Plus, Trash2, Tag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 
 type Unit = { id: string; name: string; abbreviation: string };
 
@@ -38,6 +39,9 @@ export default function SatuanPage() {
   return (
     <div className="p-6 space-y-5 max-w-lg">
       <div>
+        <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800 mb-1">
+          <ArrowLeft size={14} /> Kembali
+        </Link>
         <h1 className="text-2xl font-bold text-gray-900">Satuan</h1>
         <p className="text-sm text-gray-500">{units.length} satuan terdaftar</p>
       </div>

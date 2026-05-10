@@ -35,7 +35,6 @@ type OpnameRow = {
 
 export default function CreateStockOpnamePage() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -47,7 +46,6 @@ export default function CreateStockOpnamePage() {
     fetch("/api/products?active=true")
       .then((r) => r.json())
       .then((data: Product[]) => {
-        setProducts(data);
         // Initialize rows from all product units
         const initialRows: OpnameRow[] = [];
         data.forEach((p) => {

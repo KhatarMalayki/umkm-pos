@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Save, Landmark, MessageCircle } from "lucide-react";
+import { Save, Landmark, MessageCircle, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 type StoreSettings = {
   storeName: string;
@@ -76,6 +77,9 @@ export default function PengaturanPage() {
   return (
     <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
       <div>
+        <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-1">
+          <ArrowLeft size={14} /> Kembali
+        </Link>
         <h1 className="text-2xl font-bold text-slate-900">Pengaturan Toko</h1>
         <p className="text-sm text-slate-500 mt-1">
           Data ini dipakai untuk instruksi transfer, invoice, dan tombol kirim WhatsApp otomatis.
