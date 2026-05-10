@@ -165,6 +165,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Halaman admin baru `src/app/admin/pengguna/page.tsx` (list + modal tambah/edit, role admin/kasir, ganti password).
   - Menu `Pengguna` ditambahkan ke sidebar admin (`src/app/admin/layout.tsx`).
 
+### Invoice List & Omset Fix (2026-05-11)
+
+- `src/app/admin/invoice/page.tsx`:
+  - Menambahkan keterangan metode pembayaran `COD` / `Transfer` pada tampilan mobile dan desktop.
+- `src/app/admin/page.tsx`:
+  - Mengubah perhitungan omset menjadi perhitungan manual dari semua order non-`cancelled` agar `Transfer` ikut terbaca konsisten.
+  - Menambahkan breakdown `COD` dan `Transfer` pada kartu omset harian/bulanan dan header grafik riwayat omset.
+
 ### Change Log (Tambahan)
 
 - 2026-05-10: Fix dashboard omzet agar transfer ikut terhitung, tambah omset bulanan + riwayat 6 bulan.

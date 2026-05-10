@@ -35,37 +35,19 @@ async function getStats() {
     pendingOrders,
     doneOrders,
     totalProducts,
-    todayRevenue,
-    monthRevenue,
-    historyOrders,
+    omsetOrders,
     recentOrders,
   ] = await Promise.all([
     prisma.order.count(),
     prisma.order.count({ where: { status: "pending" } }),
     prisma.order.count({ where: { status: "done" } }),
     prisma.product.count({ where: { isActive: true } }),
-    prisma.order.aggregate({
-      where: {
-        ...omsetWhere,
-        createdAt: { gte: startOfDay },
-      },
-      _sum: { total: true },
-      _count: { _all: true },
-    }),
-    prisma.order.aggregate({
-      where: {
-        ...omsetWhere,
-        createdAt: { gte: startOfMonth },
-      },
-      _sum: { total: true },
-      _count: { _all: true },
-    }),
     prisma.order.findMany({
       where: {
         ...omsetWhere,
         createdAt: { gte: startOfHistory },
       },
-      select: { total: true, createdAt: true },
+      select: { total: true, createdAt: true, paymentMethod: true },
     }),
     prisma.order.findMany({
       take: 5,
@@ -73,6 +55,9 @@ async function getStats() {
       include: { items: true },
     }),
   ]);
+
+  const todayRevenue = { total: 0, count: 0, cod: 0, transfer: 0 };
+  const monthRevenue = { total: 0, count: 0, cod: 0, transfer: 0 };
 
   // Build monthly history buckets (oldest -> newest)
   const monthly: { key: string; label: string; total: number; count: number }[] = [];
@@ -86,8 +71,23 @@ async function getStats() {
     });
   }
   const bucketIndex = new Map(monthly.map((m, idx) => [m.key, idx]));
-  for (const o of historyOrders) {
+  for (const o of omsetOrders) {
     const d = new Date(o.createdAt);
+
+    if (d >= startOfDay) {
+      todayRevenue.total += o.total;
+      todayRevenue.count += 1;
+      if (o.paymentMethod === "cod") todayRevenue.cod += o.total;
+      if (o.paymentMethod === "transfer") todayRevenue.transfer += o.total;
+    }
+
+    if (d >= startOfMonth) {
+      monthRevenue.total += o.total;
+      monthRevenue.count += 1;
+      if (o.paymentMethod === "cod") monthRevenue.cod += o.total;
+      if (o.paymentMethod === "transfer") monthRevenue.transfer += o.total;
+    }
+
     const key = `${d.getFullYear()}-${d.getMonth()}`;
     const idx = bucketIndex.get(key);
     if (idx !== undefined) {
@@ -128,8 +128,8 @@ export default async function AdminPage() {
     recentOrders,
   } = await getStats();
 
-  const todayCount = todayRevenue._count?._all ?? 0;
-  const monthCount = monthRevenue._count?._all ?? 0;
+  const todayCount = todayRevenue.count;
+  const monthCount = monthRevenue.count;
   const maxMonthly = Math.max(1, ...monthly.map((m) => m.total));
 
   const cards = [
@@ -159,19 +159,19 @@ export default async function AdminPage() {
     },
     {
       label: "Omset Hari Ini",
-      value: formatRupiah(todayRevenue._sum.total ?? 0),
+      value: formatRupiah(todayRevenue.total),
       icon: TrendingUp,
       gradient: "from-emerald-500 to-teal-600",
       shadow: "shadow-emerald-500/20",
-      sub: `${todayCount} pesanan (COD + Transfer)`,
+      sub: `${todayCount} pesanan · COD ${formatRupiah(todayRevenue.cod)} · Transfer ${formatRupiah(todayRevenue.transfer)}`,
     },
     {
       label: "Omset Bulan Ini",
-      value: formatRupiah(monthRevenue._sum.total ?? 0),
+      value: formatRupiah(monthRevenue.total),
       icon: Calendar,
       gradient: "from-amber-500 to-orange-600",
       shadow: "shadow-amber-500/20",
-      sub: `${monthCount} pesanan bulan berjalan`,
+      sub: `${monthCount} pesanan · COD ${formatRupiah(monthRevenue.cod)} · Transfer ${formatRupiah(monthRevenue.transfer)}`,
     },
   ];
 
@@ -220,6 +220,10 @@ export default async function AdminPage() {
           <div className="flex-1">
             <h2 className="font-semibold text-slate-900">Riwayat Omset</h2>
             <p className="text-xs text-slate-500">6 bulan terakhir (semua pesanan kecuali dibatalkan)</p>
+          </div>
+          <div className="text-right text-[11px] text-slate-500">
+            <p>Bulan ini: COD {formatRupiah(monthRevenue.cod)}</p>
+            <p>Transfer: {formatRupiah(monthRevenue.transfer)}</p>
           </div>
         </div>
         <div className="p-5">

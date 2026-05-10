@@ -46,6 +46,12 @@ export default async function InvoiceListPage() {
                   </p>
                   <p className="truncate"><span className="text-gray-400">Customer:</span> {inv.order.customerName}</p>
                   <p>
+                    <span className="text-gray-400">Pembayaran:</span>{" "}
+                    <span className={inv.order.paymentMethod === "cod" ? "font-medium text-blue-600" : "font-medium text-amber-600"}>
+                      {inv.order.paymentMethod === "cod" ? "COD" : "Transfer"}
+                    </span>
+                  </p>
+                  <p>
                     <span className="text-gray-400">Tanggal:</span>{" "}
                     {new Date(inv.issuedAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
                   </p>
@@ -63,6 +69,7 @@ export default async function InvoiceListPage() {
                     <th className="px-4 py-3 text-left">No. Invoice</th>
                     <th className="px-4 py-3 text-left">No. Pesanan</th>
                     <th className="px-4 py-3 text-left">Customer</th>
+                    <th className="px-4 py-3 text-left">Pembayaran</th>
                     <th className="px-4 py-3 text-left">Tanggal</th>
                     <th className="px-4 py-3 text-left">Total</th>
                     <th className="px-4 py-3" />
@@ -74,6 +81,11 @@ export default async function InvoiceListPage() {
                       <td className="px-4 py-3 font-mono font-semibold text-emerald-700">{inv.invoiceNumber}</td>
                       <td className="px-4 py-3 font-mono text-gray-600">{inv.order.orderNumber}</td>
                       <td className="px-4 py-3 text-gray-700">{inv.order.customerName}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${inv.order.paymentMethod === "cod" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
+                          {inv.order.paymentMethod === "cod" ? "COD" : "Transfer"}
+                        </span>
+                      </td>
                       <td className="px-4 py-3 text-gray-500">
                         {new Date(inv.issuedAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
                       </td>
