@@ -90,6 +90,7 @@ export default function CheckoutPage() {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         ...form,
+        paymentMethod: form.paymentMethod === "qris" ? "transfer" : form.paymentMethod,
         discountCode: discount?.code,
         items: items.map((i) => ({
           productId: i.productId, productUnitId: i.productUnitId,
@@ -220,10 +221,27 @@ export default function CheckoutPage() {
               <label className="text-xs text-gray-600 block mb-1">Metode Pembayaran *</label>
               <Select value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}>
                 <option value="cod">Bayar di Tempat (COD)</option>
-                <option value="transfer">QRIS</option>
+                <option value="transfer">Transfer Bank</option>
+                <option value="qris">QRIS</option>
               </Select>
             </div>
             {form.paymentMethod === "transfer" && (
+              <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 space-y-1">
+                <p className="text-xs font-semibold text-emerald-700">Info Transfer Bank</p>
+                {settings?.bankName && settings?.bankAccountNumber ? (
+                  <>
+                    <p className="text-sm text-emerald-900 font-medium">
+                      {settings.bankName} · {settings.bankAccountNumber}
+                    </p>
+                    <p className="text-xs text-emerald-700">a.n. {settings.bankAccountHolder || settings.storeName || "Toko UMKM"}</p>
+                    <p className="text-xs text-emerald-700">Nominal: {formatRupiah(total)}</p>
+                  </>
+                ) : (
+                  <p className="text-xs text-amber-700">Rekening belum diset. Hubungi admin untuk instruksi transfer.</p>
+                )}
+              </div>
+            )}
+            {form.paymentMethod === "qris" && (
               <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 space-y-1">
                 <p className="text-xs font-semibold text-emerald-700">Info Pembayaran QRIS</p>
                 {settings?.qrisImageUrl ? (
@@ -238,15 +256,6 @@ export default function CheckoutPage() {
                     <p className="text-xs text-emerald-700">Silakan scan QRIS di atas.</p>
                     <p className="text-xs text-emerald-700">Nominal: {formatRupiah(total)}</p>
                   </div>
-                ) : settings?.bankName && settings?.bankAccountNumber ? (
-                  <>
-                    <p className="text-xs text-emerald-700">QRIS belum diatur, gunakan transfer bank:</p>
-                    <p className="text-sm text-emerald-900 font-medium">
-                      {settings.bankName} · {settings.bankAccountNumber}
-                    </p>
-                    <p className="text-xs text-emerald-700">a.n. {settings.bankAccountHolder || settings.storeName || "Toko UMKM"}</p>
-                    <p className="text-xs text-emerald-700">Nominal: {formatRupiah(total)}</p>
-                  </>
                 ) : (
                   <p className="text-xs text-amber-700">QRIS belum diset. Hubungi admin untuk instruksi pembayaran.</p>
                 )}

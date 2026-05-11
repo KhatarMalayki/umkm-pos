@@ -182,7 +182,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Menambahkan upload file QRIS langsung dari komputer (tidak wajib URL).
   - Menambahkan preview QRIS setelah upload / isi URL.
 - `src/app/toko/checkout/page.tsx`:
-  - Opsi metode pembayaran ditampilkan sebagai `QRIS` (value internal tetap `transfer` agar kompatibel data lama).
+  - Opsi metode pembayaran menampilkan `Transfer Bank` dan `QRIS` secara terpisah.
+  - Untuk kompatibilitas backend saat ini, pilihan `QRIS` dipetakan ke value internal `transfer` saat submit order.
   - Saat pilih QRIS, checkout menampilkan gambar QRIS dari pengaturan.
   - Jika gambar QRIS belum ada, checkout fallback ke info transfer bank.
 
