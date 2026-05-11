@@ -193,3 +193,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - 2026-05-10: Tambah modul UI Stock Opname di admin (list, buat, detail, aksi).
 - 2026-05-10: Tambah tombol kembali di beberapa halaman pengelolaan admin.
 - 2026-05-10: Tambah bubble notifikasi merah jumlah pesanan pending di sidebar admin.
+
+### Stock Opname Production Fix (2026-05-11)
+
+Masalah: halaman `/admin/stock-opname` error 500 di Railway karena tabel `StockOpname`, `StockOpnameItem`, dan `StoreSetting` tidak pernah dibuat di production (schema ditambahkan via `db push` di lokal, tapi tidak pernah di-commit sebagai migration).
+
+Perbaikan:
+- Tambah migration `prisma/migrations/20260511000000_add_store_setting_and_stock_opname/migration.sql` untuk membuat tabel `StoreSetting`, `StockOpname`, dan `StockOpnameItem`.
+- `package.json`:
+  - `start` sekarang menjalankan `prisma db push --skip-generate` sebelum `next start`, sehingga skema production selalu tersinkronisasi saat container start (aman untuk perubahan additif seperti ini).
+  - Tambah `postinstall: prisma generate` agar Prisma Client ikut ter-generate di build server.
+- Migration lokal sudah di-mark `--applied` karena tabel tersebut sudah ada di `dev.db`.
