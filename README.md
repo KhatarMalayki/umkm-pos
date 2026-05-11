@@ -173,6 +173,19 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
   - Mengubah perhitungan omset menjadi perhitungan manual dari semua order non-`cancelled` agar `Transfer` ikut terbaca konsisten.
   - Menambahkan breakdown `COD` dan `Transfer` pada kartu omset harian/bulanan dan header grafik riwayat omset.
 
+### QRIS Upload & Checkout Label (2026-05-11)
+
+- `src/app/api/uploads/qris/route.ts`:
+  - Menambahkan endpoint upload gambar QRIS (`POST`) untuk admin.
+  - File gambar disimpan ke `public/uploads/qris` dan API mengembalikan URL relatif file.
+- `src/app/admin/pengaturan/page.tsx`:
+  - Menambahkan upload file QRIS langsung dari komputer (tidak wajib URL).
+  - Menambahkan preview QRIS setelah upload / isi URL.
+- `src/app/toko/checkout/page.tsx`:
+  - Opsi metode pembayaran ditampilkan sebagai `QRIS` (value internal tetap `transfer` agar kompatibel data lama).
+  - Saat pilih QRIS, checkout menampilkan gambar QRIS dari pengaturan.
+  - Jika gambar QRIS belum ada, checkout fallback ke info transfer bank.
+
 ### Change Log (Tambahan)
 
 - 2026-05-10: Fix dashboard omzet agar transfer ikut terhitung, tambah omset bulanan + riwayat 6 bulan.

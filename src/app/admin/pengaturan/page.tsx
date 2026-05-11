@@ -6,6 +6,7 @@ import { Save, Landmark, MessageCircle, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 type StoreSettings = {
   storeName: string;
@@ -29,6 +30,7 @@ export default function PengaturanPage() {
   const [form, setForm] = useState<StoreSettings>(initialForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingQris, setUploadingQris] = useState(false);
 
   useEffect(() => {
     fetch("/api/store-settings")
@@ -68,6 +70,29 @@ export default function PengaturanPage() {
     }
 
     toast.success("Pengaturan berhasil disimpan");
+  };
+
+  const uploadQrisFile = async (file?: File) => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.set("file", file);
+
+    setUploadingQris(true);
+    const res = await fetch("/api/uploads/qris", {
+      method: "POST",
+      body: formData,
+    });
+    setUploadingQris(false);
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast.error(data.error || "Gagal upload QRIS");
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, qrisImageUrl: data.url || "" }));
+    toast.success("Gambar QRIS berhasil diupload");
   };
 
   if (loading) {
@@ -128,13 +153,35 @@ export default function PengaturanPage() {
           />
         </div>
         <div>
-          <label className="text-xs text-slate-600 block mb-1">URL Gambar QRIS (opsional)</label>
+          <label className="text-xs text-slate-600 block mb-1">Upload Gambar QRIS (opsional)</label>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => void uploadQrisFile(e.target.files?.[0])}
+            disabled={uploadingQris}
+          />
+          <p className="text-xs text-slate-400 mt-1">Maksimal 2MB. Format: JPG/PNG/WebP.</p>
+        </div>
+        <div>
+          <label className="text-xs text-slate-600 block mb-1">Atau URL Gambar QRIS</label>
           <Input
             value={form.qrisImageUrl}
             onChange={(e) => setForm({ ...form, qrisImageUrl: e.target.value })}
             placeholder="https://..."
           />
         </div>
+        {form.qrisImageUrl && (
+          <div>
+            <p className="text-xs text-slate-600 mb-2">Preview QRIS</p>
+            <Image
+              src={form.qrisImageUrl}
+              alt="QRIS"
+              width={224}
+              height={224}
+              className="w-56 max-w-full rounded-lg border border-slate-200 bg-white"
+            />
+          </div>
+        )}
       </div>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
@@ -153,8 +200,8 @@ export default function PengaturanPage() {
         </div>
       </div>
 
-      <Button onClick={save} disabled={saving} className="w-full sm:w-auto">
-        <Save size={14} /> {saving ? "Menyimpan..." : "Simpan Pengaturan"}
+      <Button onClick={save} disabled={saving || uploadingQris} className="w-full sm:w-auto">
+        <Save size={14} /> {saving ? "Menyimpan..." : uploadingQris ? "Mengupload..." : "Simpan Pengaturan"}
       </Button>
     </div>
   );
